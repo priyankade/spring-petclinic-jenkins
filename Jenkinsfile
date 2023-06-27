@@ -7,7 +7,7 @@ pipeline {
   	stage('Maven Install') {
     	agent {
       	docker {
-        	image 'maven:latest'
+        	image 'maven:3-alpine'
             args '-u root'
             args '-v /root/.m2:/root/.m2'
         }
