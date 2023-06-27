@@ -8,6 +8,7 @@ pipeline {
     	agent {
       	docker {
         	image 'maven:latest'
+            args '-u root'
             args '-v /root/.m2:/root/.m2'
         }
       }
