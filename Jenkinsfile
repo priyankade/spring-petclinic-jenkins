@@ -1,54 +1,22 @@
+#!groovy
+
 pipeline {
-  environment {
-    registry = "priyade/spring-petclinic-hub"
-    registryCredential = 'docker-hub'
-    dockerImage = ''
-  }
-  agent any
-  tools {
-    maven 'Maven 3.3.9'
-    jdk 'jdk8'
-  } 
+	agent none
   stages {
-    stage('Cloning Git') {
-      steps {
-        git 'https://github.com/priyankade/spring-petclinic-jenkins-pipeline.git'
-      }
-    }
-    stage('Compile') {
-       steps {
-         sh 'mvn compile' //only compilation of the code
-       }
-    }
-    stage('Test') {
-      steps {
-        sh '''
-        mvn clean install
-        ls
-        pwd
-        ''' 
-        //if the code is compiled, we test and package it in its distributable format; run IT and store in local repository
-      }
-    }
-    stage('Building Image') {
-      steps{
-        script {
-          dockerImage = docker.build registry + ":latest"
+  	stage('Maven Install') {
+    	agent {
+      	docker {
+        	image 'maven:latest'
         }
       }
-    }
-    stage('Deploy Image') {
-      steps{
-         script {
-            docker.withRegistry( '', registryCredential ) {
-            dockerImage.push()
-          }
-        }
+      steps {
+      	sh 'mvn clean install'
       }
     }
-    stage('Remove Unused docker image') {
-      steps{
-        sh "docker rmi $registry:latest"
+    stage('Docker Build') {
+    	agent any
+      steps {
+      	sh 'docker build -t shanem/spring-petclinic:latest .'
       }
     }
   }
